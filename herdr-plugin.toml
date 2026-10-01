@@ -1,0 +1,31 @@
+id = "unayung.pane-pull"
+name = "Pane Pull"
+version = "0.1.0"
+min_herdr_version = "0.7.4"
+description = "Pull panes from any workspace into the current tab, or send one out to its own workspace"
+platforms = ["macos", "linux"]
+
+# Nothing to build. This fails the install early when python3 or fzf is missing.
+[[build]]
+command = ["python3", "pane_pull.py", "selftest"]
+
+[[actions]]
+id = "open"
+title = "Pull panes into this tab"
+contexts = ["workspace"]
+command = ["sh", "-c", "exec \"${HERDR_BIN_PATH:-herdr}\" plugin pane open --plugin unayung.pane-pull --entrypoint picker --focus"]
+
+# A zoomed tab answers a move with success and changed=false, so un-zoom first.
+[[actions]]
+id = "exile"
+title = "Send this pane to its own workspace"
+contexts = ["workspace"]
+command = ["sh", "-c", "h=\"${HERDR_BIN_PATH:-herdr}\"; \"$h\" pane zoom \"$HERDR_PANE_ID\" --off >/dev/null; exec \"$h\" pane move \"$HERDR_PANE_ID\" --new-workspace --no-focus"]
+
+[[panes]]
+id = "picker"
+title = "Pull panes"
+placement = "popup"
+width = "85%"
+height = "75%"
+command = ["python3", "pane_pull.py"]
